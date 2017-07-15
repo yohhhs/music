@@ -27,6 +27,13 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{format(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
+            </div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
@@ -57,14 +64,16 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i @click.stop="togglePlaying" :class="miniIcon"></i>
+          <progress-circle :radius="radius" :percent="percent">
+            <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
@@ -72,14 +81,22 @@
   import {mapGetters, mapMutations} from 'vuex'
   import animations from 'create-keyframe-animation'
   import {prefixStyle} from 'common/js/dom'
+  import ProgressBar from 'base/progress-bar/progress-bar'
+  import ProgressCircle from 'base/progress-circle/progress-circle'
 
   const transform = prefixStyle('transform')
 
   export default {
     data() {
       return {
-        songReady: false
+        songReady: false,
+        currentTime: 0,
+        radius: 32
       }
+    },
+    components: {
+      ProgressBar,
+      ProgressCircle
     },
     created() {
 
@@ -97,6 +114,9 @@
       disableCls() {
         return this.songReady ? '' : 'disable'
       },
+      percent() {
+        return this.currentTime / this.currentSong.duration
+      },
       ...mapGetters([
         'fullScreen',
         'playlist',
@@ -106,8 +126,32 @@
       ])
     },
     methods: {
+      _pad(num) {
+        return ('00' + num).substr(num.toString().length);
+//        let len = num.toString().length
+//        while (len < n) {
+//          num = '0' + num
+//          len++
+//        }
+//        return num
+      },
+      onProgressBarChange(percent) {
+        this.$refs.audio.currentTime = this.currentSong.duration * percent
+        if(!this.playing) {
+          this.togglePlaying()
+        }
+      },
+      format(interval) {
+        interval = interval | 0
+        const minute = interval / 60 | 0
+        const second = this._pad(interval % 60)
+        return `${minute}:${second}`
+      },
+      updateTime(e) {
+        this.currentTime = e.target.currentTime
+      },
       prev() {
-        if(!this.songReady) {
+        if (!this.songReady) {
           return
         }
         let index = this.currentIndex - 1
@@ -115,13 +159,13 @@
           index = this.playlist.length - 1
         }
         this.setCurrentIndex(index)
-        if(!this.playing){
+        if (!this.playing) {
           this.togglePlaying()
         }
         this.songReady = false
       },
       next() {
-        if(!this.songReady) {
+        if (!this.songReady) {
           return
         }
         let index = this.currentIndex + 1
@@ -129,7 +173,7 @@
           index = 0
         }
         this.setCurrentIndex(index)
-        if(!this.playing){
+        if (!this.playing) {
           this.togglePlaying()
         }
         this.songReady = false
