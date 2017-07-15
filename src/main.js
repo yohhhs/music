@@ -1,4 +1,4 @@
-import  'babel-polyfill' //es6补丁
+import 'babel-polyfill' //es6补丁
 import Vue from 'vue'
 import App from './App'
 import router from './router'
