@@ -39,6 +39,7 @@
   import Slider from 'base/slider/slider'
   import {getRecommend, getDiscList} from 'api/recommend'
   import {ERR_OK} from 'api/config'
+  import {playlistMixin} from 'common/js/mixin'
 
   export default {
     data() {
@@ -47,11 +48,17 @@
         discList: []
       }
     },
+    mixins: [playlistMixin],
     created() {
       this._getRecommend()
       this._getDiscList()
     },
     methods: {
+      handlePlaylist() {
+        const bottom = this.playlist.length > 0 ? '60px' : 0
+        this.$refs.recommend.style.bottom = bottom
+        this.$refs.scroll.refresh()
+      },
       _getRecommend() {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
