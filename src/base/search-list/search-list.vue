@@ -34,6 +34,7 @@
   @import "~common/stylus/variable"
 
   .search-list
+    margin: 0 20px
     .search-item
       display: flex
       align-items: center

@@ -13,7 +13,6 @@ export function getLyric(mid) {
     format: 'json',
     g_tk: 5381
   })
-  console.log(data)
   return axios.get(url, {
     params: data
   }).then((res) => {

@@ -33,7 +33,6 @@
       }
     },
     created() {
-      console.log(this)
       this.$watch('query', debounce((newQuery) => {
         this.$emit('query', newQuery)
       }, 200))
