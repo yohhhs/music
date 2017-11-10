@@ -1,4 +1,4 @@
-# 慕课网课程-音乐播放器
+音乐播放器
 
 > vue2.0+vuex+vue-router+axios
 
